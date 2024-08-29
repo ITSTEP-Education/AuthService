@@ -1,6 +1,6 @@
 ﻿using AuthJWTAspNetWeb.Database;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
-
 
 namespace _20240723_SqlDb_Gai.Controllers
 {
@@ -13,17 +13,17 @@ namespace _20240723_SqlDb_Gai.Controllers
 
         public static bool isNumber(string number) => Regex.IsMatch(number, patternNumber, RegexOptions.IgnoreCase);
 
-        //public static StatusCode isSaveToDb(AuthDbContext carContext, string msg = "db saved")
-        //{
-        //    try
-        //    {
-        //        carContext.SaveChanges();
-        //        return new StatusCode201(msg);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new StatusCode400($"{ex.InnerException!.Message.ToString()}");
-        //    }
-        //}
+        public static string isSaveToDb(AuthDbContext carContext, string msg = "db saved")
+        {
+            try
+            {
+                carContext.SaveChanges();
+                return msg;
+            }
+            catch (Exception ex)
+            {
+                return $"{ex.InnerException!.Message.ToString()}";
+            }
+        }
     }
 }

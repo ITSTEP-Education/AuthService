@@ -1,10 +1,14 @@
 ﻿using AuthJWTAspNetWeb.Database;
 using AuthJWTAspNetWeb.Models;
+using AuthJWTAspNetWeb.Roles;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace _20240723_SqlDb_Gai.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public partial class CarController : ControllerBase
@@ -20,16 +24,7 @@ namespace _20240723_SqlDb_Gai.Controllers
 
         private Car? getCar(string number) => this.dbContext.Cars.FirstOrDefault(car => car.number!.Equals(number.ToUpper()));
 
-        /// <summary>
-        /// Get &lt;Cars> from db
-        /// </summary>
-        /// <returns></returns>
-        /// <responce code="200">Successful request fulfillment</responce>
-        /// <responce code="404">Failed request: No records in table cars of SqlDb carsdata</responce>
-        /// <responce code="409">Failed request: No connection to SqlDb carsdata</responce>
-
         [HttpGet(Name = "GetCars")]
-        [ProducesResponseType(typeof(IEnumerable<Car>), 200)]
         public ActionResult<IEnumerable<Car>> Get() {
             if (!DbVarification.IsDbCars(this.dbContext))
                 return StatusCode(StatusCodes.Status404NotFound, new Response() { Status = "Error", Message = "no db records for cars" });
@@ -37,54 +32,35 @@ namespace _20240723_SqlDb_Gai.Controllers
             return Ok(this.dbContext.Cars);
         }
 
-        /// <summary>
-        /// Get instance of Car by its number
-        /// </summary>
-        /// <param name="Number">Registration Number: AE4000IT</param>
-        /// <returns></returns>
-        /// <responce code="200">Successful request fulfillment</responce>
-        /// <responce code="400">Failed request: Uncorrect format of number inputed</responce>
-        /// <responce code="404">Failed request: No records in table cars of SqlDb carsdata</responce>
-        /// <responce code="409">Failed request: No connection to SqlDb carsdata</responce>
-        /// 
-        [HttpGet("Number/{Number}", Name = "GetByNumber")]
-        [ProducesResponseType(typeof(Car), 200)]
-        public ActionResult<Car> Get([Required] string Number) {
-            if (!DbVarification.isNumber(Number)) return BadRequest(new StatusCode400($"uncorrect format {Number}"));
-            else if (!DbVarification.IsDbCars(this.dbContext)) return NotFound(new StatusCode404());
+        [HttpGet("Number/{number}", Name = "GetByNumber")]
+        public ActionResult<Car> Get([Required] string number) {
+            //if (!DbVarification.isNumber(number)) 
+            //    return StatusCode(StatusCodes.Status400BadRequest, new Response() { Status = "Error", Message = $"uncorrect format {number}" });
+            if (!DbVarification.IsDbCars(this.dbContext)) 
+                return StatusCode(StatusCodes.Status404NotFound, new Response() { Status = "Error", Message = "no db records for cars" });
 
-            Car? car = this.dbContext.Cars.FirstOrDefault(car => car.number!.Equals(Number.ToUpper()));
+            Car? car = this.dbContext.Cars.FirstOrDefault(car => car.number!.Equals(number.ToUpper()));
 
-            //IEnumerable<Car> cars = (from car in _carContext.Cars.Include(c => c._Mark).Include(c => c._Color)
-            //            where car.Number.Equals(Number.ToUpper())
-            //            select new Car(car, car._Mark, car._Color));
-
-            return  car != null ? Ok(car) : BadRequest(new StatusCode400( $"{Number} model is absent in db"));
+            return  car != null ? Ok(car) : StatusCode(StatusCodes.Status404NotFound, new Response() { Status = "Error", Message = $"{number} is absent in db" });
         }
 
-        /// <summary>
-        /// Delete from db entity Car by registration Number
-        /// </summary>
-        /// <param name="number">Registration Number: AE4000IT</param>
-        /// <returns></returns>
-        /// <responce code="200">Successful request fulfillment</responce>
-        /// <responce code="400">Failed request: Uncorrect format of number inputed</responce>
-        /// <responce code="404">Failed request: Not found data</responce>
-        /// <responce code="409">Failed request: No connection to SqlDb carsdata</responce>
+        [Authorize(Roles = UserRoles.Admin)]
         [HttpDelete(Name = "DeleteCarId")]
         public IActionResult Delete([Required] string number) {
 
-            if (!DbVarification.isNumber(number)) return BadRequest(new StatusCode400($"uncorrect format {number}"));
-            else if (!DbVarification.IsDbCars(this.dbContext)) return NotFound(new StatusCode404());
+            //if (!DbVarification.isNumber(number)) 
+            //    return StatusCode(StatusCodes.Status400BadRequest, new Response() { Status = "Error", Message = $"uncorrect format {number}" });
+            if (!DbVarification.IsDbCars(this.dbContext)) 
+                return StatusCode(StatusCodes.Status404NotFound, new Response() { Status = "Error", Message = "no db records for cars" });
 
             Car? car = this.dbContext.Cars.FirstOrDefault(x => x.number.Equals(number.ToUpper()));
+
             if (car == null) {
-                return NotFound(new StatusCode404($"{number} is absent entity in db"));
+                return StatusCode(StatusCodes.Status404NotFound, new Response() { Status = "Error", Message = $"{number} is absent in db" });
             }
 
             this.dbContext.Cars.Remove(car!);
-            //return Ok(DbVarification.isSaveToDb(this.dbContext, $"{number} entity is deleted from db"));
-            return Ok();
+            return Ok(DbVarification.isSaveToDb(this.dbContext, $"{number} entity is deleted from db"));
         }
     }
 }
