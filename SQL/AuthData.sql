@@ -13,3 +13,6 @@ SELECT * FROM [dbo].[AspNetUserRoles];
 SELECT * FROM [dbo].[AspNetUsers];
 
 SELECT * FROM [dbo].[AspNetUserTokens];
+
+
+--DELETE FROM [dbo].[AspNetUsers];

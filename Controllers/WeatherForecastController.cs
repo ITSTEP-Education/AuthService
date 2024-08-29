@@ -1,9 +1,10 @@
+using AuthJWTAspNetWeb.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthJWTAspNetWeb.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.User)]
     [ApiController]
     [Route("api/[controller]")]
     public class WeatherForecastController : ControllerBase
