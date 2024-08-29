@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AuthJWTAspNetWeb.Migrations
 {
     [DbContext(typeof(AuthDbContext))]
-    [Migration("20240826083508_AuthInit")]
-    partial class AuthInit
+    [Migration("20240829030049_InjectedModelCar")]
+    partial class InjectedModelCar
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,54 @@ namespace AuthJWTAspNetWeb.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AuthJWTAspNetWeb.Models.Car", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("model")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<string>("number")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<double>("price")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("float")
+                        .HasDefaultValue(0.0);
+
+                    b.Property<string>("vinCode")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(17)
+                        .HasColumnType("nvarchar(17)")
+                        .HasDefaultValue("none");
+
+                    b.Property<float>("volume")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("real")
+                        .HasDefaultValue(0f);
+
+                    b.HasKey("id");
+
+                    b.HasIndex("number")
+                        .IsUnique()
+                        .HasDatabaseName("IndexNumber");
+
+                    b.ToTable("cars", null, t =>
+                        {
+                            t.HasCheckConstraint("ValidPrice", "price > 1000 AND price <= 10000");
+
+                            t.HasCheckConstraint("ValidVolume", "volume > 0 AND volume <= 6");
+                        });
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {

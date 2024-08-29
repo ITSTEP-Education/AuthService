@@ -1,4 +1,4 @@
-using AuthJWTAspNetWeb.Database._20240723_SqlDb_Gai.Database;
+using AuthJWTAspNetWeb.Database.AuthJWTAspNetWeb.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

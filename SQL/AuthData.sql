@@ -16,3 +16,5 @@ SELECT * FROM [dbo].[AspNetUserTokens];
 
 
 --DELETE FROM [dbo].[AspNetUsers];
+
+DELETE FROM [dbo].[AspNetUsers] WHERE UserName='poliskon';
